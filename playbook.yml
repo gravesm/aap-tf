@@ -1,0 +1,13 @@
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - ansible.builtin.copy:
+        src: tf
+        dest: /tmp
+
+    - cloud.terraform.terraform:
+        force_init: true
+        project_path: /tmp/tf
+
+    - debug:
+        msg: "{{ lookup('ansible.builtin.file', '/tmp/test') }}"

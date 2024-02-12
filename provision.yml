@@ -5,9 +5,18 @@
         src: tf
         dest: /tmp
 
+    - ansible.builtin.tempfile:
+        suffix: .tfplan
+      register: "{{ plan_file }}"
+
+    - ansible.builtin.copy:
+        content: "{{ terraform_plan }}"
+        dest: "{{ plan_file }}"
+
     - cloud.terraform.terraform:
         force_init: true
         project_path: /tmp/tf
+        plan_file: "{{ plan_file }}"
 
     - debug:
         msg: "{{ lookup('ansible.builtin.file', '/tmp/test') }}"

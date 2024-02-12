@@ -9,9 +9,9 @@
         suffix: .tfplan
       register: plan_file
 
-    - ansible.builtin.copy:
-        content: "{{ terraform_plan }}"
-        dest: "{{ plan_file.path }}"
+    - ansible.builtin.shell:
+        cmd: "base64 --decode > {{ plan_file.path }}"
+        stdin: "{{ terraform_plan }}"
 
     - cloud.terraform.terraform:
         force_init: true

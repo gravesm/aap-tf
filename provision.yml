@@ -9,9 +9,10 @@
         suffix: .tfplan
       register: plan_file
 
-    - ansible.builtin.shell:
-        cmd: "base64 --decode > {{ plan_file.path }}"
-        stdin: "{{ terraform_plan }}"
+    - cloud.terraform.plan_stash:
+        path: "{{ plan_file.path }}"
+        state: load
+      no_log: true
 
     - cloud.terraform.terraform:
         force_init: true

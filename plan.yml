@@ -17,3 +17,4 @@
 
     - cloud.terraform.plan_stash:
         path: "{{ plan_file.path }}"
+      no_log: true

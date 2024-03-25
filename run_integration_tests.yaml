@@ -1,0 +1,46 @@
+---
+- hosts: localhost
+  gather_facts: true
+  vars:
+    collection_path: /usr/share/ansible/collections/ansible_collections
+    default_name_pattern: "{{ collection_name }}_*"
+    target_name_pattern: "{{ target_name|default(lookup('vars', 'default_name_pattern')) }}"
+    integration_tests_path: "{{ collection_path }}/{{ collection_namespace }}/{{ collection_name }}/tests/integration/targets"
+    integration_tests_pattern: "{{ target_name_pattern }}"
+    integration_target_failures: []
+      #  environment:
+      #    ANSIBLE_ROLES_PATH: "{{ integration_tests_path }}"
+
+  tasks:
+    - name: Find integration test targets
+      find:
+        file_type: directory
+        paths: "{{ integration_tests_path }}"
+        pattern: "{{ integration_tests_pattern }}"
+        recurse: false
+      register: _targets
+      delegate_to: localhost
+
+    - name: Format integration targets
+      set_fact:
+        _integration_targets: "{{ _targets.files | map(attribute='path') | list | sort }}"
+
+    - name: Report missing integration targets
+      fail:
+        msg: "No integration targets found"
+      when: _integration_targets|length == 0
+
+    - name: Test targets found
+      debug:
+        msg: "{{ _integration_targets }}"
+
+    - name: Run integration tests
+      include_role:
+        name: run_integration_tests
+        tasks_from: run_integration_tests
+        apply:
+          environment:
+            ANSIBLE_DEBUG_BOTOCORE_LOGS: True
+              #            ANSIBLE_ROLES_PATH: "{{ integration_tests_path }}"
+      with_items:
+        - "{{ _integration_targets }}"

@@ -1,6 +1,5 @@
-- hosts: localhost
+- hosts: webservers
   gather_facts: false
-  roles:
-    - role: cloud.terraform_ops.aws_s3backend
-      aws_s3backend_operation: "{{ operation }}"
-      aws_s3backend_bucket_name: "{{ bucket_name }}"
+  tasks:
+    - name: Print hostname
+      command: hostname
